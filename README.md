@@ -24,6 +24,7 @@ python -m pytest -q
 2. 在「调拨试算」载入样例方案并试算。未成交从 11 笔减到 8 笔，其中恢复 4 笔，文创园北新增 1 笔未成交。要验证载重，将首趟改成 5 辆。
 3. 在「班次留档」查看历史版本、切回选中的班次，或用工具条「重跑班次」复算当前版本。同样的输入和方案沿用原班次编号。
 4. 点「下载证据」获取当前查看版本的 JSON。文件带输入摘要、逐行隔离、时间线、试算差量和逐站勾稽。
+5. 在「暴雨补结」点「按派车单生成凭证」，把未到站行程的现场结论改为「管制返程」并核对站点为装车站。试算后可看到落地车、退回车、各站可借车与未成交差量；发布后同一凭证重试不重复结算，修正凭证另出新版且旧版可在「结算版本」重开回切。
 
 ## 七个业务入口
 
@@ -35,6 +36,7 @@ python -m pytest -q
 | 溢出需求 | `GET /api/demand` | 核对各站未成交尝试和 15 分钟槽位 |
 | 调拨试算 | `GET /api/dispatch`，`POST /api/dispatch/preview`，`POST /api/dispatch/publish` | 编辑、试算并发布调拨行程 |
 | 库存勾稽 | `GET /api/inventory` | 核对库存、在骑、在途和入账记录 |
+| 暴雨补结 | `GET /api/settlement`，`POST /api/settlement/preview`，`POST /api/settlement/publish`，`POST /api/settlement/restore` | 凭现场凭证按实际执行段补结中断调拨，可重开核对 |
 | 班次留档 | `GET /api/runs`，`POST /api/runs/rerun`，`POST /api/runs/restore` | 重跑、回切历史、下载证据 |
 
 回放使用匿名在骑车池和离散尝试。调拨试算接受调度员输入的方案，班次、容量和车辆表使用仓内样例配置。路线耗时由输入时点和统一最短用时校验。

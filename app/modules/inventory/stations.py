@@ -1,6 +1,6 @@
 from collections import Counter
 
-SIGNS = {'rent': -1, 'return': 1, 'load': -1, 'unload': 1}
+SIGNS = {'rent': -1, 'return': 1, 'load': -1, 'unload': 1, 'return_unload': 1}
 
 
 def station_ledgers(shift, result):

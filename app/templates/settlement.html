@@ -1,0 +1,27 @@
+<div class="stage" id="stage-settlement" hidden>
+  <section class="panel">
+    <div class="panel__head"><h2>现场凭证与结算结论</h2><span class="subtle" id="settle-state">未出具结论</span></div>
+    <form id="settle-form" class="panel__body">
+      <div class="ledger-scroll" id="voucher-editor"></div>
+      <div class="panel__body actions form-actions">
+        <button class="btn" id="voucher-add" type="button">新增凭证</button>
+        <button class="btn" id="voucher-sample" type="button">按派车单生成凭证</button>
+        <button class="btn" type="submit" id="settle-preview">试算结论</button>
+        <button class="btn btn--primary" id="settle-publish" type="button" disabled>发布结论</button>
+      </div>
+    </form>
+    <p class="subtle panel__body" id="settle-summary"></p>
+  </section>
+  <section class="panel">
+    <div class="panel__head"><h2>逐趟执行与工时口径</h2></div>
+    <div class="ledger-scroll" id="settle-legs"></div>
+  </section>
+  <section class="panel">
+    <div class="panel__head"><h2>各站可借车与未成交变化</h2><span class="subtle">对照无调拨基准与原派车单</span></div>
+    <div class="ledger-scroll" id="settle-stations"></div>
+  </section>
+  <section class="panel">
+    <div class="panel__head"><h2>结算版本（可重开核对）</h2><button class="btn" id="settle-restore" type="button" hidden>回切所选版本</button></div>
+    <div class="ledger-scroll" id="settle-history"></div>
+  </section>
+</div>

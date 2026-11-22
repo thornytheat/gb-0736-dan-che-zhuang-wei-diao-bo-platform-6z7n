@@ -41,6 +41,20 @@ CSV 上限为 256 KiB 和 2000 条逻辑记录。`line` 是记录起始的物理
 
 运行编号由原始文件的 SHA-256 与字节数、规范化方案和规则版本计算。相同输入重跑会比对已存结果，原生成时间、原耗时与证据文件保持一致。证据 SHA-256 针对 `evidence` 对象，编码为 UTF-8，键名排序、紧凑 JSON，中文直接写入。只有下载包外层另附证据摘要。
 
+## 暴雨补结
+
+现场凭证是对已发布派车单每趟行程的签收或管制记录，字段固定：`voucher_id`（不透明凭证号，幂等键）、`leg_id`（对应 `plan.json` 行程）、`truck`、`station`、`at`、`count`、`outcome`。`outcome` 仅取 `delivered`（到站卸车签收，站点必须是派车单目的地）或 `returned`（临时管制原车返程，站点必须是派车单装车站）。凭证的车辆、辆数必须与派车单一致，时点不早于装车且在班次内；每趟行程恰好一张凭证，否则整单拒绝，不产生部分结算。
+
+| 入口 | 请求字段 | 结果 |
+|---|---|---|
+| `GET /api/settlement` | — | 当前班次的活动结算、版本历史和已留档凭证 |
+| `POST /api/settlement/preview` | JSON `run`、`vouchers` | 不落库的结算结论试算 |
+| `POST /api/settlement/publish` | JSON `run`、`vouchers` | 事务内发布；同凭证重试幂等，新凭证出新版 |
+| `POST /api/settlement/restore` | JSON `run`、`settlement`、`expected` | 回切到历史结算版本，留档不删 |
+| `GET /api/settlement/<id>/evidence.json` | — | 带完整性摘要的结算证据下载 |
+
+结算编号由班次编号、规范化凭证、规范化派车单和结算规则版本的 SHA-256 决定，同一组现场凭证重试得到同一编号，返回 `duplicate: true` 且不新增版本、不重复结算。结论包含：采用口径（`actual_execution`）、逐趟 `status` 与 `pay_segments`（落地为 `load + unload`，返程为 `load + empty_return + return_unload`）、未落地车辆的 `return_station`、逐站可借车/暂存/空桩/退回车辆及对基准和派车单的未成交差量。结算表与班次表分离，原派车单、原始事件和全部凭证长期留档；发布失败时事务回滚，活动结论保持旧版。班次已重排后再用旧编号发布返回 `STALE_SETTLEMENT`。
+
 ## 模拟边界
 
 期初在骑车辆为匿名池，结果按尝试分配成功与失败。单次尝试只计一辆，缺车或满桩后的自行绕行以独立尝试出现。调拨车按已填装卸站顺序行驶，行程之间暂不模拟空车换站、道路拥堵或司机班表。工作台用随项目发布的班次与容量数据，事件 CSV 可替换。

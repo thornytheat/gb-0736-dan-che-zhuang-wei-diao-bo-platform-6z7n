@@ -20,4 +20,13 @@ REASONS = {
     'NO_ACCEPTED_EVENTS': '无可采信事件，请修正文件', 'BODY_TOO_LARGE': '文件体积超限',
     'BAD_REQUEST': '请求格式无效', 'REPLAY_DRIFT': '重跑结果与历史记录不一致',
     'STORE_UNAVAILABLE': '班次存储暂不可用，请重试',
+    'SETTLE_NOT_FOUND': '未找到结算结论', 'VOUCHER_SHAPE': '现场凭证格式错误',
+    'VOUCHER_DUPLICATE': '同一现场凭证重复提交，已沿用原结算',
+    'LEGS_NOT_SETTLED': '仍有调拨行程缺少现场凭证，无法出具结论',
+    'CONFLICTING_VOUCHER': '同一行程的凭证结论互相矛盾',
+    'VOUCHER_TRUCK_MISMATCH': '凭证车辆与原派车单不一致',
+    'VOUCHER_STATION_MISMATCH': '凭证站点不在原派车单上',
+    'VOUCHER_COUNT_MISMATCH': '凭证辆数与原派车单不一致',
+    'VOUCHER_TIME_INVALID': '凭证时点缺失或早于装车、晚于班次结束',
+    'STALE_SETTLEMENT': '结算依据的班次已更新，请重开核对',
 }

@@ -14,7 +14,8 @@ def check_timeline(shift, timeline):
                 or row['road'] < 0 or row['transit'] < 0):
             limits.append(evidence)
         station = row['station']
-        expected = totals[station] + SIGNS.get(row['kind'], 0) * row['quantity']
+        # 失败的租还尝试库存不变（code 非空），不能按流量计入期望。
+        expected = totals[station] + (SIGNS.get(row['kind'], 0) * row['quantity'] if not row['code'] else 0)
         totals[station] = state['docked'] + state['held']
         fleet_gap = sum(totals.values()) + row['road'] + row['transit'] - fleet
         if totals[station] != expected or fleet_gap:
@@ -27,7 +28,7 @@ def reconcile(shift, result, intake, capacity):
     opening = sum(row['opening'] for row in stations) + shift.opening_road
     closing = sum(row['closing'] for row in stations) + result['road'] + result['transit']
     road_expected = shift.opening_road + sum(row['rent'] - row['return'] for row in stations)
-    move_gap = sum(row['load'] - row['unload'] for row in stations) - result['transit']
+    move_gap = sum(row['load'] - row['unload'] - row.get('return_unload', 0) for row in stations) - result['transit']
     input_gap = intake['input_rows'] - len(intake['events']) - len(intake['excluded'])
     capacity_gap = capacity['input_rows'] - capacity['accepted'] - len(capacity['excluded'])
     road_gap = result['road'] - road_expected

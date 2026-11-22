@@ -14,6 +14,7 @@ from .modules.dispatch.handler import bp as dispatch
 from .modules.intake.handler import bp as intake
 from .modules.inventory.handler import bp as inventory
 from .modules.replay.handler import bp as replay
+from .modules.settlement.handler import bp as settlement
 from .reasons import REASONS
 from .store import Store
 
@@ -24,7 +25,7 @@ def create_app(path=None):
     db = Store(path or os.getenv('CYCLE_DB', 'var/shift.sqlite3'))
     app.extensions['shift_store'] = db
     seed(db)
-    for blueprint in (intake, capacity, replay, demand, dispatch, inventory, archive):
+    for blueprint in (intake, capacity, replay, demand, dispatch, inventory, archive, settlement):
         app.register_blueprint(blueprint)
 
     @app.errorhandler(DomainError)

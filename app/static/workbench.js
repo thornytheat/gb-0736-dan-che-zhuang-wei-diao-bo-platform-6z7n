@@ -1,12 +1,15 @@
 import {$, api, clock, date, notice, post, showError, time} from './view.js';
 import * as stages from './stages.js';
 import {fillDraft, newLeg, readDraft} from './dispatch.js';
+import {settlement} from './settlement.js';
 
 const anchors = [...document.querySelectorAll('.rail-nav [data-nav]')];
 const keys = anchors.map(link => link.dataset.nav);
 let current, meta, data, extra, selected, revision = 0;
 let draftRun, previewResult, previewedLegs;
 let busy = false;
+let settlementRun = null;
+settlement.wire();
 
 function runId() { return meta.manifest.id; }
 function activeId() { return meta.history.find(row => row.active).id; }
@@ -35,9 +38,13 @@ function paint() {
     }
     stages.dispatch(previewResult || data, meta.shift, Boolean(previewResult));
     $('publish').disabled = !previewedLegs || runId() !== activeId() || busy;
+  } else if (current === 'settlement') {
+    if (settlementRun !== runId()) {
+      settlementRun = runId();
+      settlement.reset();
+      await settlement.refresh(runId(), meta.shift, data.legs);
+    }
   } else stages[current](data, meta.shift, extra);
-}
-
 async function load(run = selected) {
   const key = location.hash.slice(1);
   current = keys.includes(key) ? key : 'replay';
@@ -63,8 +70,9 @@ async function load(run = selected) {
     const runMeta = await api(`/api/runs${run ? `?run=${encodeURIComponent(run)}` : ''}`);
     if (token !== revision) return;
     const suffix = `?run=${encodeURIComponent(runMeta.manifest.id)}`;
+    const needDispatch = stage === 'dispatch' || stage === 'settlement';
     const [payload, slots] = await Promise.all([
-      stage === 'runs' ? runMeta : api(`/api/${stage}${suffix}`),
+      stage === 'runs' ? runMeta : api(needDispatch ? `/api/dispatch${suffix}` : `/api/${stage}${suffix}`),
       stage === 'replay' ? api(`/api/demand${suffix}`) : null,
     ]);
     if (token !== revision) return;
